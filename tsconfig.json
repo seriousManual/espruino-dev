@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+      "target": "ES2015",
+      "module": "ESNext",
+      "strict": true,
+      "esModuleInterop": true,
+      "skipLibCheck": true,
+      "forceConsistentCasingInFileNames": true,
+      "outDir": "./buildTS"
+    },
+    "$schema": "https://json.schemastore.org/tsconfig",
+    "display": "Recommended",
+    "include": [
+      "./example/**/*.ts"
+    ]
+  }
