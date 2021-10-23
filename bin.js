@@ -1,5 +1,8 @@
 import espruino from 'espruino'
 import typescript from '@rollup/plugin-typescript';
+import commonjs from '@rollup/plugin-commonjs';
+import nodeResolve from '@rollup/plugin-node-resolve';
+
 import { rollup } from 'rollup'
 
 async function run(input, selectedPort) {
@@ -46,8 +49,10 @@ async function createBundle(input) {
           format: 'cjs'
         },
         plugins: [
+            nodeResolve(),
+            commonjs(),
             typescript({
-                lib: ['es2015'],
+                lib: ['es2015', 'dom'],
                 target: 'es5',
             })
         ]

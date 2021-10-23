@@ -1,11 +1,9 @@
-import * as ms from 'ms'
-
 pinMode(B4, "input_pulldown")
 
 import Blinker from "./lib/Blinker";
 
-const a = new Blinker(LED2, ms('1s'))
-const b = new Blinker(LED1, ms('2s'))
+const a = new Blinker(LED2, 150)
+const b = new Blinker(LED1, 160)
 
 // a.start()
 // b.start()
