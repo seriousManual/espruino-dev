@@ -1,14 +1,14 @@
 class Blinker {
-    private intervalHandle: number = null
+    private intervalHandle: number | null = null
 
-    constructor(private pin) {}
+    constructor(private pin, private interval: number = 500) {}
 
     start() {
         digitalWrite(this.pin, 0)
         
         this.intervalHandle = setInterval(() => {
             digitalWrite(this.pin, !digitalRead(this.pin))
-        }, 100)
+        }, this.interval)
     }
 
     stop() {
@@ -16,7 +16,14 @@ class Blinker {
             return
         }
 
+        digitalWrite(this.pin, 0)
+
         clearInterval(this.intervalHandle)
+        this.intervalHandle = null
+    }
+
+    running() {
+        return this.intervalHandle !== null
     }
 }
 

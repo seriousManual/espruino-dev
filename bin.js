@@ -4,6 +4,9 @@ import { rollup } from 'rollup'
 
 async function run(input, selectedPort) {
     const code = await createBundle(input)
+
+    console.log(code)
+
     flashToEspruino(code, selectedPort)
 }
 
@@ -42,7 +45,12 @@ async function createBundle(input) {
           dir: 'build',
           format: 'cjs'
         },
-        plugins: [typescript()]
+        plugins: [
+            typescript({
+                lib: ['es2015'],
+                target: 'es5',
+            })
+        ]
     })
 
     console.log('generating output...')
