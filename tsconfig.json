@@ -11,6 +11,6 @@
     "$schema": "https://json.schemastore.org/tsconfig",
     "display": "Recommended",
     "include": [
-      "./example/**/*.ts"
+      "blinker/**/*.ts"
     ]
   }

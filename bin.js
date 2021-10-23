@@ -1,13 +1,51 @@
-const ts = require('typescript')
-const rollup = require('rollup')
+import espruino from 'espruino'
+import typescript from '@rollup/plugin-typescript';
+import { rollup } from 'rollup'
 
-async function run(input) {
-
+async function run(input, selectedPort) {
+    const code = await createBundle(input)
+    flashToEspruino(code, selectedPort)
 }
 
-async function getCompleteBundle(input) {
-    const bundle = await rollup.rollup({ input })
+async function flashToEspruino(code, selectedPort) {
+    console.log('flashing...')
 
+    const oldWrite = process.stdout.write
+
+    const pile = []
+    process.stdout.write = () => {
+        pile.push('🙈')
+    }
+
+    espruino.init((a) => {
+        Espruino.Core.Serial.getPorts((ports) => {
+            const portExists = ports.some(port => port.path === selectedPort)
+            if (!portExists) {
+                throw new Error(`${selectedPort} not found!`)
+            }
+            
+            espruino.sendCode(selectedPort, code, (error) => {
+                process.stdout.write = oldWrite
+                console.log(`I silenced ${pile.length} messages`)
+
+                console.log(error)
+            })
+        })
+    })
+}
+
+async function createBundle(input) {
+    console.log('bundling...')
+    const bundle = await rollup({
+        input,
+        output: {
+          dir: 'build',
+          format: 'cjs'
+        },
+        plugins: [typescript()]
+    })
+
+    console.log('generating output...')
     const { output } = await bundle.generate({
         format: 'cjs',
         name: 'bin',
@@ -15,15 +53,12 @@ async function getCompleteBundle(input) {
     })
 
     if (output.length > 1) {
-        throw new Error('more than one output file! 🤷‍♀️')
+        throw new Error('more than one output file, I don\'t know what to do now 🤷‍♀️')
     }
 
-    console.log(output[0].code);
-    
+    bundle.close()
+
+    return output[0].code
 }
 
-async function beer(inputDirectory) {
-    
-}
-
-run()
+run(process.argv[2], process.argv[3])
