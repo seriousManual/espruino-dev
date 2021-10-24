@@ -1,16 +1,17 @@
 {
     "compilerOptions": {
-      "target": "ES2015",
+      "target": "ES5",
       "module": "ESNext",
       "strict": true,
       "esModuleInterop": true,
       "skipLibCheck": true,
       "forceConsistentCasingInFileNames": true,
-      "outDir": "./buildTS"
+      "lib": ["ES2015", "DOM"],
+      "types": []
     },
     "$schema": "https://json.schemastore.org/tsconfig",
     "display": "Recommended",
     "include": [
-      "projects/**/*.ts"
+      "./**/*.ts"
     ]
   }

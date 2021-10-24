@@ -1,9 +1,8 @@
 const relayPin = A8
 
-//pinMode(relayPin, "input_pullup");
 pinMode(B4, "input_pulldown");
 
-var leds = new Uint8ClampedArray(3);
+var leds = [0, 0, 0];
 
 digitalWrite(relayPin, true);
 

@@ -47,10 +47,7 @@ async function createBundle(input) {
         plugins: [
             nodeResolve(),
             commonjs(),
-            typescript({
-                lib: ['es2015', 'dom'],
-                target: 'es5',
-            })
+            typescript({ tsconfig: './tsconfig.json' })
         ]
     })
 
