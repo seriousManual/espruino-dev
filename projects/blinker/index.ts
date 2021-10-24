@@ -1,12 +1,10 @@
 pinMode(B4, "input_pulldown")
 
 import Blinker from "./lib/Blinker";
+import randomNumber from '../utils/randomNumber'
 
-const a = new Blinker(LED2, 150)
-const b = new Blinker(LED1, 160)
-
-// a.start()
-// b.start()
+const a = new Blinker(LED2, randomNumber(100, 500))
+const b = new Blinker(LED1, randomNumber(100, 500))
 
 setWatch((e) => {
     a.running() ? a.stop() : a.start()

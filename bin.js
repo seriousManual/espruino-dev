@@ -4,44 +4,40 @@ import commonjs from '@rollup/plugin-commonjs';
 import nodeResolve from '@rollup/plugin-node-resolve';
 
 import { rollup } from 'rollup'
+import silenceStdout from './utils/silenceStdout.js'
 
 async function run(input, selectedPort) {
     const code = await createBundle(input)
-
-    console.log(code)
+    // console.log(code)
 
     flashToEspruino(code, selectedPort)
 }
 
 async function flashToEspruino(code, selectedPort) {
     console.log('flashing...')
-
-    const oldWrite = process.stdout.write
-
-    const pile = []
-    process.stdout.write = () => {
-        pile.push('🙈')
-    }
-
+    
+    const unSilence = silenceStdout()
     espruino.init((a) => {
         Espruino.Core.Serial.getPorts((ports) => {
             const portExists = ports.some(port => port.path === selectedPort)
             if (!portExists) {
-                throw new Error(`${selectedPort} not found!`)
+                const availablePorts = ports.map(port => port.path).join(', ')
+                console.error(`${selectedPort} not found, available Ports: ${availablePorts}`)
+                return
             }
             
-            espruino.sendCode(selectedPort, code, (error) => {
-                process.stdout.write = oldWrite
-                console.log(`I silenced ${pile.length} messages`)
-
-                console.log(error)
+            espruino.sendCode(selectedPort, code, (result) => {
+                unSilence()
+                console.log(result)
             })
         })
     })
 }
 
 async function createBundle(input) {
-    console.log('bundling...')
+    const unSilence = silenceStdout()
+
+    unSilence.writeAnyway('bundling...')
     const bundle = await rollup({
         input,
         output: {
@@ -58,18 +54,21 @@ async function createBundle(input) {
         ]
     })
 
-    console.log('generating output...')
+    unSilence.writeAnyway('generating output...')
     const { output } = await bundle.generate({
         format: 'cjs',
         name: 'bin',
         sourcemap: true,        
     })
 
-    if (output.length > 1) {
-        throw new Error('more than one output file, I don\'t know what to do now 🤷‍♀️')
-    }
 
     bundle.close()
+    unSilence()
+
+    if (output.length > 1) {
+        console.error('more than one output file, I don\'t know what to do now 🤷‍♀️')
+        return
+    }
 
     return output[0].code
 }

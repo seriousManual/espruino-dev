@@ -1,5 +1,5 @@
 class Blinker {
-    private intervalHandle: number | null = null
+    private intervalHandle: NodeJS.Timer | null = null
 
     constructor(private pin, private interval: number = 500) {}
 
