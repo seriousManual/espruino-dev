@@ -11,7 +11,7 @@ async function run(input, selectedPort) {
 
     code = code.replace('\'use strict\';', '')
 
-    code  = 'digitalPulse(LED2, true, [50, 50, 50, 50, 50, 50, 50]);\n\n' + code
+    code  = 'digitalPulse(LED2, true, [50, 50, 50]);\n\n' + code
 
     console.log('\n\n -------------------- generated bundle ---------------\n\n')
     console.log(code)
@@ -24,7 +24,7 @@ async function flashToEspruino(code, selectedPort) {
     console.log('flashing...')
     
     const unSilence = silenceStdout()
-    espruino.init((a) => {
+    espruino.init(() => {
         Espruino.Core.Serial.getPorts((ports) => {
             const portExists = ports.some(port => port.path === selectedPort)
             if (!portExists) {
@@ -64,7 +64,6 @@ async function createBundle(input) {
         name: 'bin',
         sourcemap: true,        
     })
-
 
     bundle.close()
     unSilence()
