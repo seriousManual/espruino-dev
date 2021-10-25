@@ -21,7 +21,8 @@ class Button {
         }
 
         setWatch((e) => {
-            (e.state ? this.downHandlers : this.upHandlers).forEach(handler => handler())
+            const list = e.state ? this.downHandlers : this.upHandlers
+            list.forEach(handler => handler())
         }, pin, watchOptions);
     }
 

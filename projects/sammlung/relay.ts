@@ -1,8 +1,9 @@
-pinMode(B4, "input_pulldown");
+import Button from "../utils/Button";
 
 const relayPin = A8
 digitalWrite(relayPin, true);
 
-setWatch((e) => {
-    digitalWrite(relayPin, !e.state);
-}, B4, { repeat: true, debounce : 100, edge: "both" });
+const myButton = new Button(B4, { debounce: 100 });
+myButton
+  .down(() => digitalWrite(relayPin, false))
+  .up(() => digitalWrite(relayPin, true))

@@ -2,6 +2,7 @@ import espruino from 'espruino'
 import typescript from '@rollup/plugin-typescript';
 import commonjs from '@rollup/plugin-commonjs';
 import nodeResolve from '@rollup/plugin-node-resolve';
+import { terser } from 'rollup-plugin-terser';
 
 import { rollup } from 'rollup'
 import silenceStdout from './utils/silenceStdout.js'
@@ -54,7 +55,8 @@ async function createBundle(input) {
         plugins: [
             nodeResolve(),
             commonjs(),
-            typescript({ tsconfig: './tsconfig.json' })
+            typescript({ tsconfig: './tsconfig.json' }),
+            terser()
         ]
     })
 

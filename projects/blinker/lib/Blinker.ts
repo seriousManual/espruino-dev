@@ -22,6 +22,14 @@ class Blinker {
         this.intervalHandle = null
     }
 
+    toggle() {
+        if (this.running()) {
+            this.stop()
+        } else {
+            this.start()
+        }
+    }
+
     running() {
         return this.intervalHandle !== null
     }
