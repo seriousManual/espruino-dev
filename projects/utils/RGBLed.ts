@@ -15,6 +15,8 @@ const colors: colorMap = {
 class RGBLed {
     constructor(private spi: SPI, mosi: Pin) {
         this.spi.setup({ baud: 3200000, mosi });
+
+        this.setColor('off');
     }
 
     public setColor(color: color, brightness: number = 1): void {
