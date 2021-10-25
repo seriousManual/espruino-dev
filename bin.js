@@ -7,8 +7,15 @@ import { rollup } from 'rollup'
 import silenceStdout from './utils/silenceStdout.js'
 
 async function run(input, selectedPort) {
-    const code = await createBundle(input)
-    // console.log(code)
+    let code = await createBundle(input)
+
+    code = code.replace('\'use strict\';', '')
+
+    code  = 'digitalPulse(LED2, true, [50, 50, 50, 50, 50, 50, 50]);\n\n' + code
+
+    console.log('\n\n -------------------- generated bundle ---------------\n\n')
+    console.log(code)
+    console.log('\n\n -----------------------------------------------------\n\n')
 
     flashToEspruino(code, selectedPort)
 }
