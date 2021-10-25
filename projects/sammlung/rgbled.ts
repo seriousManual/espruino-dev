@@ -1,9 +1,9 @@
 import RGBLed from "../utils/RGBLed";
-
-pinMode(B4, "input_pulldown");
+import Button from "../utils/Button";
 
 const myLed = new RGBLed(SPI2, B15);
+const myButton = new Button(B4, {debounce: 100});
 
-setWatch((e) => {
-  myLed.setColor(e.state ? 'red': 'off', 0.01);
-}, B4, { repeat: true, debounce : 100, edge: "both" });
+myButton
+  .down(() => myLed.setColor('red', 0.01))
+  .up(() => myLed.setColor('off', 0.01))

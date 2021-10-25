@@ -1,3 +1,5 @@
+import clamp from "./clamp";
+
 type color = 'red' | 'green' | 'yellow' | 'blue' | 'white' | 'off';
 type colorMap = Record<color, [number, number, number]>;
 
@@ -25,10 +27,6 @@ class RGBLed {
             colorDefinition[2] * clampedBrightness,
         ], 0b0001, 0b0011);
     }
-}
-
-function clamp(value: number, min: number, max: number): number {
-    return Math.min(Math.max(value, min), max);
 }
 
 export default RGBLed;
