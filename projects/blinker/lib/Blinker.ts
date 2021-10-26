@@ -1,38 +1,38 @@
 class Blinker {
-    private intervalHandle: number | null = null
+  private intervalHandle: number | undefined
 
-    constructor(private pin: Pin, private interval: number = 500) {}
+  constructor (private readonly pin: Pin, private readonly interval: number = 500) {}
 
-    start() {
-        digitalWrite(this.pin, false)
-        
-        this.intervalHandle = setInterval(() => {
-            digitalWrite(this.pin, !digitalRead(this.pin))
-        }, this.interval)
+  start (): void {
+    digitalWrite(this.pin, false)
+
+    this.intervalHandle = setInterval(() => {
+      digitalWrite(this.pin, !digitalRead(this.pin))
+    }, this.interval)
+  }
+
+  stop (): void {
+    if (!this.running()) {
+      return
     }
 
-    stop() {
-        if (!this.intervalHandle) {
-            return
-        }
+    digitalWrite(this.pin, false)
 
-        digitalWrite(this.pin, false)
+    clearInterval(this.intervalHandle)
+    this.intervalHandle = undefined
+  }
 
-        clearInterval(this.intervalHandle)
-        this.intervalHandle = null
+  toggle (): void {
+    if (this.running()) {
+      this.stop()
+    } else {
+      this.start()
     }
+  }
 
-    toggle() {
-        if (this.running()) {
-            this.stop()
-        } else {
-            this.start()
-        }
-    }
-
-    running() {
-        return this.intervalHandle !== null
-    }
+  running (): boolean {
+    return this.intervalHandle !== undefined
+  }
 }
 
 export default Blinker

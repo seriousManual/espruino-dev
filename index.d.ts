@@ -11,35 +11,35 @@ declare global {
     var LED1: Pin
     var LED2: Pin
 
-    type PinMode =  'analog' |'input' |'input_pullup' |'input_pulldown' |'output' |'opendrain' |'af_output' | 'af_opendrain'
-    function pinMode(pin: Pin, mode: PinMode, automatic?: boolean): void
+    type PinMode = 'analog' |'input' |'input_pullup' |'input_pulldown' |'output' |'opendrain' |'af_output' | 'af_opendrain'
+    function pinMode (pin: Pin, mode: PinMode, automatic?: boolean): void
 
     type Edge = 'rising' | 'falling' | 'both'
     interface SetWatchOptions {
-        repeat?: boolean,
-        debounce?: number,
-        edge?: Edge
+      repeat?: boolean
+      debounce?: number
+      edge?: Edge
     }
     interface WatchEvent {
-        state: boolean, 
-        time: number, 
-        lastTime: number
+      state: boolean
+      time: number
+      lastTime: number
     }
-    function setWatch(handler: (event: WatchEvent) => void, pin: Pin, options?: SetWatchOptions): void
+    function setWatch (handler: (event: WatchEvent) => void, pin: Pin, options?: SetWatchOptions): void
 
-    function digitalWrite(pin: Pin, value: boolean): void
-    function digitalRead(pin: Pin): boolean
+    function digitalWrite (pin: Pin, value: boolean): void
+    function digitalRead (pin: Pin): boolean
 
     // ::::::::: SPI :::::::::
-    
+
     interface SPISetupOptions {
-        baud: number,
-        mosi: Pin
+      baud: number
+      mosi: Pin
     }
 
     interface SPI {
-        setup(options: SPISetupOptions): void
-        send4bit(data: number[], bit0: number, bit1: number): void
+      setup: (options: SPISetupOptions) => void
+      send4bit: (data: number[], bit0: number, bit1: number) => void
     }
 
     var SPI1: SPI

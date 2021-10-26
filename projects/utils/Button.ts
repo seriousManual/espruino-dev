@@ -1,40 +1,40 @@
 interface ButtonOptions {
-    debounce?: number
+  debounce?: number
 }
 
 type handler = Function
 type handlerList = handler[]
 
 class Button {
-    private downHandlers: handlerList = []
-    private upHandlers: handlerList = []
+  private readonly downHandlers: handlerList = []
+  private readonly upHandlers: handlerList = []
 
-    constructor(pin: Pin, options?: ButtonOptions) {
-        pinMode(pin, "input_pulldown");
+  constructor (pin: Pin, options?: ButtonOptions) {
+    pinMode(pin, 'input_pulldown')
 
-        const watchOptions: SetWatchOptions = { repeat: true, edge: "both" }
+    const watchOptions: SetWatchOptions = { repeat: true, edge: 'both' }
 
-        if (options) {
-            if (options.debounce) {
-                watchOptions.debounce = options.debounce
-            }
-        }
-
-        setWatch((e) => {
-            const list = e.state ? this.downHandlers : this.upHandlers
-            list.forEach(handler => handler())
-        }, pin, watchOptions);
+    if (options != null) {
+      if (options.debounce !== undefined) {
+        watchOptions.debounce = options.debounce
+      }
     }
 
-    down(handler: handler): Button {
-        this.downHandlers.push(handler)
-        return this
-    }
+    setWatch((e) => {
+      const list = e.state ? this.downHandlers : this.upHandlers
+      list.forEach(handler => handler())
+    }, pin, watchOptions)
+  }
 
-    up(handler: handler): Button {
-        this.upHandlers.push(handler)
-        return this
-    }
+  down (handler: handler): Button {
+    this.downHandlers.push(handler)
+    return this
+  }
+
+  up (handler: handler): Button {
+    this.upHandlers.push(handler)
+    return this
+  }
 }
 
-export default Button;
+export default Button
