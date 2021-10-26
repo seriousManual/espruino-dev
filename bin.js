@@ -6,25 +6,40 @@ import { terser } from 'rollup-plugin-terser'
 
 import { rollup } from 'rollup'
 import silenceStdout from './utils/silenceStdout.js'
+import parseArgs from './utils/parseArgs.js'
 
-async function run (input, selectedPort) {
-  let code = await createBundle(input)
+async function run () {
+  const args = parseArgs()
+
+  let code = await createBundle(args.entryPoint, args)
 
   code = code.replace('\'use strict\';', '')
 
-  code = 'digitalPulse(LED2, true, [50, 50, 50]);\n\n' + code
+  if (args.preamble) {
+    code = 'digitalPulse(LED2, true, [50, 50, 50]);\n' + code
+  }
 
-  console.log('\n\n -------------------- generated bundle ---------------\n\n')
-  console.log(code)
-  console.log('\n\n -----------------------------------------------------\n\n')
+  if (args.showcode) {
+    console.log('\n -------------------- generated bundle ---------------\n')
+    console.log(code)
+    console.log('-----------------------------------------------------\n')
+  }
 
-  flashToEspruino(code, selectedPort)
+  flashToEspruino(code, args, _ => {
+    console.log('✔️')
+  })
 }
 
-async function flashToEspruino (code, selectedPort) {
+async function flashToEspruino (code, args, callback) {
+  if (!args.flash) {
+    console.log('-> flashing suppressed')
+    return callback(null)
+  }
+
+  const { port: selectedPort } = args
   console.log('flashing...')
 
-  const unSilence = silenceStdout()
+  const unSilence = silenceStdout(true)
   espruino.init(() => {
     Espruino.Core.Serial.getPorts((ports) => {
       const portExists = ports.some(port => port.path === selectedPort)
@@ -36,28 +51,39 @@ async function flashToEspruino (code, selectedPort) {
 
       espruino.sendCode(selectedPort, code, (result) => {
         unSilence()
-        console.log(result)
+
+        if (args.showresult) {
+          console.log(result)
+        }
+
+        callback(null)
       })
     })
   })
 }
 
-async function createBundle (input) {
+async function createBundle (input, args) {
   const unSilence = silenceStdout()
 
-  unSilence.writeAnyway('bundling...')
+  unSilence.writeAnyway(`bundling${args.minify ? ' (minified)' : ''}...`)
+
+  const plugins = [
+    nodeResolve(),
+    commonjs(),
+    typescript({ tsconfig: './tsconfig.json' })
+  ]
+
+  if (args.minify) {
+    plugins.push(terser())
+  }
+
   const bundle = await rollup({
     input,
     output: {
       dir: 'build',
       format: 'cjs'
     },
-    plugins: [
-      nodeResolve(),
-      commonjs(),
-      typescript({ tsconfig: './tsconfig.json' }),
-      terser()
-    ]
+    plugins
   })
 
   unSilence.writeAnyway('generating output...')
@@ -78,4 +104,4 @@ async function createBundle (input) {
   return output[0].code
 }
 
-run(process.argv[2], process.argv[3])
+run()

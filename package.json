@@ -23,8 +23,7 @@
     "typescript": "^4.4.4"
   },
   "dependencies": {
-    "hirestime": "^6.1.0",
-    "ms": "^2.1.3"
+    "yargs": "^17.2.1"
   },
   "ts-standard": {
     "project": "tsconfig.json"
