@@ -1,4 +1,3 @@
-import espruino from 'espruino'
 import typescript from '@rollup/plugin-typescript'
 import commonjs from '@rollup/plugin-commonjs'
 import nodeResolve from '@rollup/plugin-node-resolve'
@@ -7,10 +6,10 @@ import { terser } from 'rollup-plugin-terser'
 import { rollup } from 'rollup'
 import silenceStdout from './utils/silenceStdout.js'
 import parseArgs from './utils/parseArgs.js'
+import { init as espruinoInit, getPorts, sendCode } from './utils/espruino.js'
 
 async function run () {
   const args = parseArgs()
-
   let code = await createBundle(args.entryPoint, args)
 
   code = code.replace('\'use strict\';', '')
@@ -34,41 +33,8 @@ async function run () {
   })
 }
 
-async function flashToEspruino (code, args, callback) {
-  if (!args.flash) {
-    console.log('-> flashing suppressed')
-    return callback(null)
-  }
-
-  const { port: selectedPort } = args
-  console.log('flashing...')
-
-  const unSilence = silenceStdout(true)
-
-  espruino.init(() => {
-    Espruino.Core.Serial.getPorts((ports) => {
-      const portExists = ports.some(port => port.path === selectedPort)
-      if (!portExists) {
-        const availablePorts = ports.map(port => port.path).join(', ')
-        console.error(`${selectedPort} not found, available Ports: ${availablePorts}`)
-        return
-      }
-
-      espruino.sendCode(selectedPort, code, (result) => {
-        unSilence()
-
-        if (args.showresult) {
-          console.log(result)
-        }
-
-        callback(null)
-      })
-    })
-  })
-}
-
 async function createBundle (input, args) {
-  const unSilence = silenceStdout()
+  const unSilence = silenceStdout(args.verbose)
 
   unSilence.writeAnyway(`bundling${args.minify ? ' (minified)' : ''}...`)
 
@@ -107,6 +73,33 @@ async function createBundle (input, args) {
   }
 
   return output[0].code
+}
+
+async function flashToEspruino (code, args, callback) {
+  if (!args.flash) {
+    console.log('-> flashing suppressed')
+    return callback(null)
+  }
+
+  const { port: selectedPort } = args
+  console.log('flashing...')
+
+  const unSilence = silenceStdout(args.verbose)
+
+  await espruinoInit()
+  const ports = await getPorts()
+  const portExists = ports.some(port => port.path === selectedPort)
+  if (!portExists) {
+    const availablePorts = ports.map(port => port.path).join(', ')
+    console.error(`${selectedPort} not found, available Ports: ${availablePorts}`)
+  }
+
+  const sendResult = await sendCode(selectedPort, code)
+  unSilence()
+
+  if (args.showresult) {
+    console.log(sendResult)
+  }
 }
 
 run()

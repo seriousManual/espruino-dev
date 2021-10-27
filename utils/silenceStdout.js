@@ -1,5 +1,5 @@
-function silenceStdout (flag = true) {
-  if (!flag) {
+function silenceStdout (verbose = false) {
+  if (verbose) {
     const resolver = _ => _
     resolver.writeAnyway = _ => _
 

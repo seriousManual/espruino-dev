@@ -3,7 +3,7 @@ import { hideBin } from 'yargs/helpers'
 
 function parseArgs () {
   const {
-    entryPoint, port, nopreamble, minify, showcode, noflash, showresult, save
+    entryPoint, port, nopreamble, minify, showcode, noflash, showresult, save, verbose
   } = yargs(hideBin(process.argv))
     .command('$0 [entryPoint] [port]', 'transpile, bundle and deploy', (yargs) => {
       return yargs
@@ -41,6 +41,11 @@ function parseArgs () {
       description: 'show the result from the board',
       default: false
     })
+    .options('verbose', {
+      type: 'boolean',
+      description: 'show loads of debugging information',
+      default: false
+    })
     .options('save', {
       type: 'boolean',
       description: 'save the generated code to the board',
@@ -57,7 +62,8 @@ function parseArgs () {
     showcode,
     flash: !noflash,
     showresult,
-    save
+    save,
+    verbose
   }
 }
 
