@@ -3,9 +3,9 @@ import { hideBin } from 'yargs/helpers'
 
 function parseArgs () {
   const {
-    entryPoint, port, nopreamble, minify, showcode, noflash, showresult
+    entryPoint, port, nopreamble, minify, showcode, noflash, showresult, save
   } = yargs(hideBin(process.argv))
-    .command('$0 [entryPoint] [port]', 'transpile, bundle and deplo', (yargs) => {
+    .command('$0 [entryPoint] [port]', 'transpile, bundle and deploy', (yargs) => {
       return yargs
         .positional('entryPoint', {
           describe: 'entrypoint of the project to be built'
@@ -41,6 +41,11 @@ function parseArgs () {
       description: 'show the result from the board',
       default: false
     })
+    .options('save', {
+      type: 'boolean',
+      description: 'save the generated code to the board',
+      default: false
+    })
     .parse()
 
   return {
@@ -51,7 +56,8 @@ function parseArgs () {
     minify,
     showcode,
     flash: !noflash,
-    showresult
+    showresult,
+    save
   }
 }
 

@@ -25,6 +25,10 @@ async function run () {
     console.log('-----------------------------------------------------\n')
   }
 
+  if (args.save) {
+    code += '\nsave();'
+  }
+
   flashToEspruino(code, args, _ => {
     console.log('✔️')
   })
@@ -40,6 +44,7 @@ async function flashToEspruino (code, args, callback) {
   console.log('flashing...')
 
   const unSilence = silenceStdout(true)
+
   espruino.init(() => {
     Espruino.Core.Serial.getPorts((ports) => {
       const portExists = ports.some(port => port.path === selectedPort)
