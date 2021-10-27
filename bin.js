@@ -15,7 +15,7 @@ async function run () {
   code = code.replace('\'use strict\';', '')
 
   if (args.preamble) {
-    code = 'digitalPulse(LED2, true, [50, 50, 50]);\n' + code
+    code += '\n\ndigitalPulse(LED2, true, [50, 50, 50]);'
   }
 
   if (args.showcode) {

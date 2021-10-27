@@ -29,6 +29,7 @@ declare global {
 
     function digitalWrite (pin: Pin, value: boolean): void
     function digitalRead (pin: Pin): boolean
+    function digitalPulse (pin: Pin, value: boolean, time: number | number[])
 
     // ::::::::: SPI :::::::::
 
