@@ -1,7 +1,8 @@
-import RGBLed from '../utils/RGBLed';
-import Button from '../utils/Button';
+import { RGBLedChain } from '../utils/RGBLed'
+import Button from '../utils/Button'
 
-const myLed = new RGBLed(SPI2, B15)
+const myChain = new RGBLedChain(SPI2, B15)
+const myLed = myChain.getRgbLed()
 const myButton = new Button(B4, { debounce: 100 })
 
 myButton
