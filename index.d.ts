@@ -11,6 +11,8 @@ declare global {
     var LED1: Pin
     var LED2: Pin
 
+    var BTN: Pin
+
     type PinMode = 'analog' |'input' |'input_pullup' |'input_pulldown' |'output' |'opendrain' |'af_output' | 'af_opendrain'
     function pinMode (pin: Pin, mode: PinMode, automatic?: boolean): void
 

@@ -13,6 +13,7 @@ const colors: colorMap = {
 }
 
 export class RGBLedChain {
+  private transaction: boolean = false
   private readonly leds: RGBLed[] = []
 
   constructor (private readonly spi: SPI, mosi: Pin) {
@@ -20,8 +21,38 @@ export class RGBLedChain {
   }
 
   update (): void {
+    if (this.transaction) {
+      return
+    }
+
+    this.write()
+  }
+
+  openTransaction (): () => void {
+    this.transaction = true
+
+    return () => {
+      this.transaction = false
+      this.write()
+    }
+  }
+
+  setAll (color: color, brightness: number): void {
+    const commitTransaction = this.openTransaction()
+
+    this.leds.forEach(led => {
+      led.setColor(color, brightness)
+    })
+
+    commitTransaction()
+  }
+
+  off (): void {
+    this.setAll('off', 0)
+  }
+
+  private write (): void {
     const colorValues = this.leds.reduce<number[]>((carray, led) => {
-      // return [...carray, ...led.getColors()]
       return carray.concat(led.getColors())
     }, [])
 
@@ -41,7 +72,12 @@ export class RGBLed {
 
   constructor (private readonly parent: RGBLedChain) {}
 
-  public setColor (color: color, brightness: number = 1): void {
+  public setColor (color: color | [number, number, number], brightness: number = 1): void {
+    if (Array.isArray(color)) {
+      this.color = color
+      return
+    }
+
     const colorDefinition = colors[color]
     const clampedBrightness = clamp(brightness, 0, 1)
 
@@ -56,5 +92,17 @@ export class RGBLed {
 
   getColors (): [number, number, number] {
     return this.color
+  }
+
+  off (): void {
+    this.setColor('off')
+  }
+
+  random (): void {
+    this.setColor([
+      Math.floor(Math.random() * 255),
+      Math.floor(Math.random() * 255),
+      Math.floor(Math.random() * 255)
+    ], 0.3)
   }
 }
