@@ -1,13 +1,16 @@
 import clamp from './clamp'
 
-type color = 'red' | 'green' | 'yellow' | 'blue' | 'white' | 'off'
-type colorMap = Record<color, [number, number, number]>
+export type color = 'yellow' | 'red' | 'pink' | 'blue' | 'turquiose' | 'green' | 'white' | 'off'
+export type colorTuple = [number, number, number]
+export type colorMap = Record<color, colorTuple>
 
-const colors: colorMap = {
-  red: [255, 0, 0],
-  green: [0, 255, 0],
+export const colors: colorMap = {
   yellow: [255, 255, 0],
+  red: [255, 0, 0],
+  pink: [255, 0, 255],
   blue: [0, 0, 255],
+  turquiose: [0, 255, 255],
+  green: [0, 255, 0],
   white: [255, 255, 255],
   off: [0, 0, 0]
 }
@@ -37,12 +40,18 @@ export class RGBLedChain {
     }
   }
 
-  setAll (color: color, brightness: number): void {
+  setAll (colors: Array<[color, number]>): void;
+  setAll (color: color, brightness?: number): void;
+  setAll (color: color | Array<[color, number]>, brightness: number = 1): void {
     const commitTransaction = this.openTransaction()
 
-    this.leds.forEach(led => {
-      led.setColor(color, brightness)
-    })
+    if (Array.isArray(color)) {
+      color.forEach(([color, brightness], index) => {
+        this.leds[index].setColor(color, brightness)
+      })
+    } else {
+      this.leds.forEach(led => led.setColor(color, brightness))
+    }
 
     commitTransaction()
   }
@@ -53,7 +62,7 @@ export class RGBLedChain {
 
   private write (): void {
     const colorValues = this.leds.reduce<number[]>((carray, led) => {
-      return carray.concat(led.getColors())
+      return carray.concat(led.getColorTuple())
     }, [])
 
     this.spi.send4bit(colorValues, 0b0001, 0b0011)
@@ -68,11 +77,11 @@ export class RGBLedChain {
 }
 
 export class RGBLed {
-  private color: [number, number, number] = [0, 0, 0]
+  private color: colorTuple = [0, 0, 0]
 
   constructor (private readonly parent: RGBLedChain) {}
 
-  public setColor (color: color | [number, number, number], brightness: number = 1): void {
+  public setColor (color: color | colorTuple, brightness: number = 1): void {
     if (Array.isArray(color)) {
       this.color = color
       return
@@ -90,7 +99,7 @@ export class RGBLed {
     this.parent.update()
   }
 
-  getColors (): [number, number, number] {
+  getColorTuple (): colorTuple {
     return this.color
   }
 
