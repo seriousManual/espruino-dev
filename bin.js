@@ -6,17 +6,13 @@ import { terser } from 'rollup-plugin-terser'
 import { rollup } from 'rollup'
 import silenceStdout from './utils/silenceStdout.js'
 import parseArgs from './utils/parseArgs.js'
-import { init as espruinoInit, getPorts, sendCode } from './utils/espruino.js'
+import { init as espruinoInit, getPorts, sendCode, sendCodeAndStream, executeStatement, open, close } from './utils/espruino.js'
 
 async function run () {
   const args = parseArgs()
   let code = await createBundle(args.entryPoint, args)
 
   code = code.replace('\'use strict\';', '')
-
-  if (args.preamble) {
-    code += '\n\ndigitalPulse(LED2, true, [50, 50, 50]);'
-  }
 
   if (args.showcode) {
     console.log('\n -------------------- generated bundle ---------------\n')
@@ -29,7 +25,7 @@ async function run () {
   }
 
   flashToEspruino(code, args, _ => {
-    console.log('✔️')
+    console.log('done...')
   })
 }
 
@@ -87,19 +83,40 @@ async function flashToEspruino (code, args, callback) {
   const unSilence = silenceStdout(args.verbose)
 
   await espruinoInit()
+
   const ports = await getPorts()
   const portExists = ports.some(port => port.path === selectedPort)
   if (!portExists) {
     const availablePorts = ports.map(port => port.path).join(', ')
     console.error(`${selectedPort} not found, available Ports: ${availablePorts}`)
+    return
   }
 
-  const sendResult = await sendCode(selectedPort, code)
+  await open(selectedPort)
+
+  if (args.stream) {
+    await sendCodeAndStream(code)
+  } else {
+    await sendCode(code)
+  }
+
+  if (args.preamble && !args.stream) {
+    await executeStatement('digitalPulse(LED2, true, [50, 50, 50, 50, 50]);')
+  }
+
   unSilence()
 
-  if (args.showresult) {
-    console.log(sendResult)
+  if (!args.stream) {
+    close()
   }
+
+  callback(null)
 }
 
 run()
+
+process.on('SIGINT', () => {
+  close()
+
+  setTimeout(() => process.exit(), 300)
+})
